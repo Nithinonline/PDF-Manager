@@ -56,7 +56,7 @@ router.post("/create-user", upload.single("file"), async (req, res, next) => {
       res.status(201).json({
         success: true,
         message: `Please check your email :- ${user.email} to activate your Account. Link will expire in 5 minutes`,
-      });
+      }); 
     } catch (err) {
       return next(new ErrorHandler(err.message, 400));
     }
@@ -102,7 +102,6 @@ router.post('/activation', catchAsyncErrors(async (req, res, next) => {
 
 
 //Login
-
 router.post("/login-user", catchAsyncErrors(async (req, res, next) => {
   try {
     const { email, password } = req.body;
@@ -124,6 +123,7 @@ router.post("/login-user", catchAsyncErrors(async (req, res, next) => {
   }
 
 }))
+
 
 
 

@@ -10,24 +10,23 @@ const ActivationPage = () => {
 
   useEffect(() => {
     if (activation_token) {
-      
-      const sendRequest = async () => {
-        await axios
-          .post(`${server}/activation`, {
-            activation_token,
-          })
-          .then((res) => {
-            console.log(res.data);
-          })
-          .catch((err) => {
-            console.log(err);
-            setError(true);
-          });
-      };
-      
       sendRequest();
     }
   }, []);
+
+  const sendRequest = async () => {
+    await axios
+      .post(`${server}/activation`, {
+        activation_token,
+      })
+      .then((res) => {
+        console.log(res.data);
+      })
+      .catch((err) => {
+        console.log(err);
+        setError(true);
+      });
+  };
 
   return (
     <div

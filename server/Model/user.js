@@ -18,8 +18,15 @@ const userSchema= new mongoose.Schema({
         minLength: [6, "Password should be more than 6 characters"]
     },
     pdf:{
-        type:Array,
-        default:[]
+        PDFname:{
+            type: String,
+        },
+        PDFdata:{
+            type:Array,
+            default:[]
+        }
+    
+        
     },
 
     createdAt: {
@@ -43,9 +50,9 @@ userSchema.pre("save",async function(next){
 
 //jwt token
 
-userSchema.method.getJwtToken=function(){
+userSchema.methods.getJwtToken=function(){
     return jwt.sign({id: this._id},process.env.JWT_SECRET_KEY,{
-        expiresIn:process.env.JWT_EXPIRES
+        expiresIn:process.env.JWT_EXPIRES,
     })
 }
 
