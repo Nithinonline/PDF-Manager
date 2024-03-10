@@ -4,122 +4,66 @@ const { upload } = require("../multer");
 const fs = require('fs');
 const User = require("../Model/user");
 const ErrorHandler = require("../utils/ErrorHandler");
-const jwt = require("jsonwebtoken");
-const sendMail = require("../utils/sendMail");
-const catchAsyncErrors = require("../middleware/catchAsyncErrors")
-const sendToken = require("../utils/jwtToken");
-const { isAuthenticated } = require("../middleware/auth");
 const router = express.Router()
+const bcrypt = require("bcrypt")
+const catchAsyncErrors = require("../middlewares/catchAsyncErrors")
 
 
 
 //SignUp
-router.post("/create-user", upload.single("file"), async (req, res, next) => {
+router.post("/create-user", async (req, res, next) => {
   try {
     const { name, email, password } = req.body;
-    const userEmail = await User.findOne({ email });
 
-
-    //checking if there is a existing user with the email
-    if (userEmail) {
-      const fileName = req.file.filename;
-      const filePath = `uploads/${fileName}`;
-      fs.unlink(filePath, (err) => {
-        if (err) {
-          console.log(err);
-          res.status(500).json({ message: "Error deleting File" });
-        }
-      });
-      return next(new ErrorHandler("User already exists", 400));
+    if (!name || !email || !password || name === ' ' || email === ' ' || password === ' ') {
+      return next(new ErrorHandler("All fields required", 400))
     }
 
-
-    const filename = req.file.filename;
-    const fileUrl = path.join(filename);
-    console.log(fileUrl);
-    const user = {
-      name: name,
-      email: email,
-      password: password,
-      avatar: fileUrl,
-    };
-    const activationToken = createActivationToken(user);
-
-    const activationUrl = `http://localhost:5173/activation/${activationToken}`;
-    console.log(activationUrl);
-    try {
-      await sendMail({
-        email: user.email,
-        subject: "Activate your Account",
-        message: ` Hello ${user.name} Please Click on the link to activate your account: ${activationUrl}`,
-      });
-      res.status(201).json({
-        success: true,
-        message: `Please check your email :- ${user.email} to activate your Account. Link will expire in 5 minutes`,
-      }); 
-    } catch (err) {
-      return next(new ErrorHandler(err.message, 400));
+    const existingUser = await User.findOne({ email })
+    if (existingUser) {
+      return next(new ErrorHandler("User Already Exist", 400))
     }
+
+    const hashPassword = bcrypt.hashSync(password, 10)
+
+    const user = await User.create({
+      name,
+      email,
+      password: hashPassword
+    })
+
+    res.status(200).json(user)
+
   } catch (err) {
-    return next(new ErrorHandler(err.message, 400));
+    return next(new ErrorHandler(err.message, 500))
   }
 });
 
 
 
-//function to create activation token
-
-const createActivationToken = (user) => {
-  return jwt.sign(user, process.env.ACTIVATION_SECRET, {
-    expiresIn: "5m",
-  })
-}
-
-//To activate user
-
-router.post('/activation', catchAsyncErrors(async (req, res, next) => {
-
-  try {
-
-    const { activation_token } = req.body;
-
-    const newUser = jwt.verify(
-      activation_token,
-      process.env.ACTIVATION_SECRET
-    );
-
-    if (!newUser) {
-      return next(new ErrorHandler("Invalid Token", 400))
-    }
-
-    const { name, email, password, avatar } = newUser;
-    User.create({ name, email, password, avatar })
-    sendToken(newUser, 201, res)
-  } catch (err) {
-    return next(new ErrorHandler(err.message, 500))
-  }
-}))
-
-
 //Login
 router.post("/login-user", catchAsyncErrors(async (req, res, next) => {
   try {
+
     const { email, password } = req.body;
-    if (!email || !password) {
-      return next(new ErrorHandler("Please provide all fields", 400))
+
+    if (!email || !password || email === '' || password === '') {
+      return next(new ErrorHandler("Please provide all required fields", 400))
     }
 
-    const user = await User.findOne({ email }).select("+password");
+    const user = await User.findOne({ email });
     if (!user) {
-      return next(new ErrorHandler("Requested User not found", 400))
+      return next(new ErrorHandler("Invalid credentials", 400))
     }
-    const isPasswordValid = await user.comparePassword(password);
-    if (!isPasswordValid) {
-      return next(new ErrorHandler("Invalid Credentials", 400))
+    const validPassword = bcrypt.compare(password, user.password)
+    if (!validPassword) {
+      return next(new ErrorHandler('Invalid credentials', 400))
     }
-    sendToken(user, 201, res)
-  } catch (err) {
-    return next(new ErrorHandler(err.message, 500))
+
+    res.status(200).json(user)
+
+  } catch (error) {
+    return next(new ErrorHandler(error.message, 500))
   }
 
 }))
@@ -127,21 +71,32 @@ router.post("/login-user", catchAsyncErrors(async (req, res, next) => {
 
 
 
-//To get user deatils
 
-router.get('/getuser', isAuthenticated, catchAsyncErrors(async (req, res, next) => {
+//To Add PDF
+router.post('/add/:id', upload.single("file"), async (req, res, next) => {
   try {
-    const user = await User.findById(req.user.id)
+    const {title} = req.body
+    const filename=req.file.filename
+    const fileUrl = path.join(filename)
+
+    const user = await User.findById({ _id: req.params.id })
+
     if (!user) {
-      return next(new ErrorHandler("Requested user not found", 400));
+      return next(new ErrorHandler("user not found", 400))
     }
-    res.status(200).json({
-      success: true,
-      user,
-    });
+
+    user.pdf.push({
+      title: title,
+      PDFdata: fileUrl
+    })
+    await user.save()
+
+    res.status(200).json({ message: 'PDF added successfully', user });
+
   } catch (err) {
     return next(new ErrorHandler(err.message, 500))
   }
-}));
+})
+
 
 module.exports = router

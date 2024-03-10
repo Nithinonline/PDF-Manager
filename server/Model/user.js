@@ -1,9 +1,8 @@
-const mongoose=require('mongoose')
-const bcrypt=require('bcrypt')
-const jwt=require("jsonwebtoken")
+const mongoose = require('mongoose')
+const bcrypt = require('bcrypt')
 
 
-const userSchema= new mongoose.Schema({
+const userSchema = new mongoose.Schema({
     name: {
         type: String,
         required: [true, "Please Enter your name"]
@@ -17,17 +16,18 @@ const userSchema= new mongoose.Schema({
         required: [true, "Please provide password"],
         minLength: [6, "Password should be more than 6 characters"]
     },
-    pdf:{
-        PDFname:{
-            type: String,
-        },
-        PDFdata:{
-            type:Array,
-            default:[]
+    pdf:
+        [{
+            title: {
+                type: String,
+
+            },
+            PDFdata: {
+                type: String,
+            }
         }
-    
         
-    },
+        ],
 
     createdAt: {
         type: Date,
@@ -40,26 +40,19 @@ const userSchema= new mongoose.Schema({
 
 
 //for encrpting the password
-userSchema.pre("save",async function(next){
-    if(!this.isModified("password")){
+userSchema.pre("save", async function (next) {
+    if (!this.isModified("password")) {
         next();
     }
 
-    this.password=await bcrypt.hash(this.password, 10)
+    this.password = await bcrypt.hash(this.password, 10)
 });
 
-//jwt token
-
-userSchema.methods.getJwtToken=function(){
-    return jwt.sign({id: this._id},process.env.JWT_SECRET_KEY,{
-        expiresIn:process.env.JWT_EXPIRES,
-    })
-}
 
 //compare password
 
-userSchema.methods.comparePassword=async function(enteredPassword){
-    return await bcrypt.compare(enteredPassword,this.password);
+userSchema.methods.comparePassword = async function (enteredPassword) {
+    return await bcrypt.compare(enteredPassword, this.password);
 }
 
-module.exports=mongoose.model("user",userSchema)
+module.exports = mongoose.model("user", userSchema)

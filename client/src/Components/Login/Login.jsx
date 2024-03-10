@@ -1,152 +1,90 @@
 import React, { useState } from 'react'
-import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
-import styles from '../../styles/styles';
 import { Link, useNavigate } from "react-router-dom"
-import axios from 'axios';
 import { server } from '../../server';
+import axios from "axios"
 import { toast } from 'react-toastify';
 
 const Login = () => {
 
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [visible, setVisible] = useState(false)
-  const navigate = useNavigate()
-  console.log(password, email);
-
-  const handleSubmit = (e) => {
-    e.preventDefault()
-
-    axios.post(`${server}/login-user`, {
-      email: email,
-      password: password
-    },{
-      withCredentials:true
-    }
-   
-    )
-      .then((res) => {
-        console.log(res);
-        toast.success("Login successful")
-        navigate("/")
-      })
-      .catch((err) => {
-        toast.error('Login Failed')
-        console.log(err)
-      });
-  }
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [name, setName] = useState("")
+    const navigate=useNavigate()
 
 
-  return (
-    <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-      <div className="sm:mx-auto sm:w-full sm:max-w-md">
-        <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-          Login to Your Account
-        </h2>
-      </div>
+    
+const senderFunction=async()=>{
+  const res=await axios.post(`${server}/login-user`,{
+    email:email,
+    password:password,
+  })
+  .then((res)=>{
+    console.log(res.data)
+    toast.success("Login succesful")
+    navigate("/")
+  })
+  .catch((error)=>{
+    console.log(error);
+    toast.error(error.response.data.message)
+  });
+}
 
-      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
-          <form className="space-y-6">
-            <div>
-              <label
-                htmlFor="email"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Email Address
-              </label>
-              <div className="mt-1">
-                <input
-                  placeholder="Email"
-                  type="email"
-                  autoComplete="email"
-                  name='email'
-                  required
-                  onChange={(e) => setEmail(e.target.value)}
-                  value={email}
-                  className="appearance-none block w-full px-3 py-2 border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                />
-              </div>
+const handleSubmit=(e)=>{
+  e.preventDefault()
+  senderFunction()
+}
+
+    console.log(name,email,password)
+
+
+    return (
+        <>
+    <div>
+      <section className="bg-gray-50 dark:bg-gray-900">
+        <div className="flex flex-col items-center justify-center px-6 py-8 mx-auto md:h-screen lg:py-0">
+          <a href="#" className="flex items-center mb-6 text-2xl font-semibold text-gray-900 dark:text-white">
+            <img className="w-8 h-8 mr-2" src="https://flowbite.s3.amazonaws.com/blocks/marketing-ui/logo.svg" alt="logo"/>
+              Flowbite
+          </a>
+          <div className="w-full bg-white rounded-lg shadow dark:border md:mt-0 sm:max-w-md xl:p-0 dark:bg-gray-800 dark:border-gray-700">
+            <div className="p-6 space-y-4 md:space-y-6 sm:p-8">
+              <h1 className="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white">
+                Login to your account
+              </h1>
+              <form className="space-y-4 md:space-y-6" action="#">
+                <div>
+                  <label for="email" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Your email</label>
+                  <input type="email" name="email" id="email" className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="name@company.com" required=""
+                  onChange={(e)=>setEmail(e.target.value)}/>
+                </div>
+            
+                <div>
+                  <label for="confirm-password" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Password</label>
+                  <input type="password" name="confirm-password" id="confirm-password" placeholder="password" className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required=""
+                  onChange={(e)=>setPassword(e.target.value)}/>
+                </div>
+                {/* <div className="flex items-start">
+                  <div className="flex items-center h-5">
+                    <input id="terms" aria-describedby="terms" type="checkbox" className="w-4 h-4 border border-gray-300 rounded bg-gray-50 focus:ring-3 focus:ring-primary-300 dark:bg-gray-700 dark:border-gray-600 dark:focus:ring-primary-600 dark:ring-offset-gray-800" required=""/>
+                  </div>
+                  <div className="ml-3 text-sm">
+                    <label for="terms" className="font-light text-gray-500 dark:text-gray-300">I accept the <a className="font-medium text-primary-600 hover:underline dark:text-primary-500" href="#">Terms and Conditions</a></label>
+                  </div>
+                </div> */}
+                <button type="submit" className="w-full text-white bg-[blue] hover:bg-primary-700 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
+                onClick={handleSubmit}>Login</button>
+                <p className="text-sm font-light text-gray-500 dark:text-gray-400">
+                  create new account? 
+                  <Link to="/signup" className="font-medium text-primary-600 hover:underline dark:text-primary-500">Sign up</Link>
+                </p>
+              </form>
             </div>
-
-            <div>
-              <label
-                htmlFor="Password"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Password
-              </label>
-              <div className="mt-1 relative">
-                <input
-                  placeholder="Password"
-                  type={visible ? `text` : `password`}
-                  autoComplete="current-password"
-                  required
-                  name='password'
-                  onChange={(e) => setPassword(e.target.value)}
-                  value={password}
-                  className="appearance-none block w-full px-3 py-2 border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                />
-                {visible ? (
-                  <AiOutlineEye
-                    className="absolute right-2 top-2 cursor-pointer"
-                    size={25}
-                    onClick={() => setVisible(false)}
-                  />
-                ) : (
-                  <AiOutlineEyeInvisible
-                    className="absolute right-2 top-2 cursor-pointer"
-                    size={25}
-                    onClick={() => setVisible(true)}
-                  />
-                )}
-              </div>
-            </div>
-
-            <div className={`${styles.normalFlex} justify-between`}>
-              <div className={`${styles.normalFlex}`}>
-                <input
-                  type="checkbox"
-                  name="remember-me"
-                  id="remember-me"
-                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                />
-                <label
-                  htmlFor="remember-me"
-                  className="ml-2 block text-sm text-gray-900"
-                >
-                  Remember Me
-                </label>
-              </div>
-
-              <div className="text-sm">
-                <a className="font-medium text-blue-600 hover:text-blue-500">
-                  Forgot Your Password
-                </a>
-              </div>
-            </div>
-
-            <div>
-              <button
-                onClick={handleSubmit}
-                type="submit"
-                className="group relative w-full h-[40px] flex justify-center py-2 px-4 border bg-blue-500 text-white"
-              >
-                Submit
-              </button>
-            </div>
-
-            <div className={`${styles.normalFlex} w-full`}>
-              <h4>Don't have an Account? </h4>
-              <Link to="/signUp" className="text-blue-600 pl-2">
-                SignUp
-              </Link>
-            </div>
-          </form>
+          </div>
         </div>
+      </section>
       </div>
-    </div>
-  );
+    </>
+    );
 };
 
-export default Login
+export default Login;

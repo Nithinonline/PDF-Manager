@@ -5,6 +5,7 @@ import LoginPage from './Pages/LoginPage'
 import { ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css';
 import ActivationPage from './Pages/ActivationPage'
+import HomePage from './Pages/HomePage'
 
 
 
@@ -12,6 +13,7 @@ const App = () => {
   return (
    <BrowserRouter>
      <Routes>
+     <Route path="/" element={<HomePage/>} />
       <Route path="/signup" element={<SignUpPage/>} />
       <Route path="/login" element={<LoginPage/>} />
       <Route path='/activation/:activation_token' element={<ActivationPage/>} />
