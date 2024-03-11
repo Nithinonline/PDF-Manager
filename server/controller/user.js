@@ -68,6 +68,23 @@ router.post("/login-user", catchAsyncErrors(async (req, res, next) => {
 
 }))
 
+//get user
+
+router.get('/getUser/:id', catchAsyncErrors(async (req, res, next) => {
+try{
+const {id}=req.params;
+const user=await User.findById({_id:id})
+if(!user){
+  return next(new ErrorHandler("user not found",400))
+}
+res.status(200).json(user)
+
+}catch(err)
+{
+  return next(new ErrorHandler(err.message,500))
+}
+}))
+
 
 
 
@@ -75,9 +92,11 @@ router.post("/login-user", catchAsyncErrors(async (req, res, next) => {
 //To Add PDF
 router.post('/add/:id', upload.single("file"), async (req, res, next) => {
   try {
-    const {title} = req.body
-    const filename=req.file.filename
+    const { title } = req.body
+    const filename = req.file.filename
     const fileUrl = path.join(filename)
+
+    console.log(fileUrl)
 
     const user = await User.findById({ _id: req.params.id })
 

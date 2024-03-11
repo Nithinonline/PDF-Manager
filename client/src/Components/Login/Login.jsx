@@ -9,6 +9,7 @@ const Login = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [name, setName] = useState("")
+    const [user,setUser]=useState(null)
     const navigate=useNavigate()
 
 
@@ -19,8 +20,11 @@ const senderFunction=async()=>{
     password:password,
   })
   .then((res)=>{
-    console.log(res.data)
+    console.log(res.data) 
     toast.success("Login succesful")
+    const modifiedData={...res.data}
+    delete modifiedData.password
+    localStorage.setItem('user', JSON.stringify(modifiedData));
     navigate("/")
   })
   .catch((error)=>{
