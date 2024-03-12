@@ -6,10 +6,11 @@ import Navbar from '../Components/Layout/Navbar'
 const HomePage = () => {
   return (
     <>
+    <div className='bg-[#F3EDC8]'>
     <Navbar/>
     <Form/>
     <Cards/>
-  
+    </div>
     </>
   )
 }

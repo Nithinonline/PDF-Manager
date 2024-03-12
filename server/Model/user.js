@@ -20,6 +20,7 @@ const userSchema = new mongoose.Schema({
         [{
             title: {
                 type: String,
+                
 
             },
             PDFdata: {
