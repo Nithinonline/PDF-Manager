@@ -52,6 +52,7 @@ const Cards = () => {
     //setting pdf url
     const showPdf = (pdf) => {
         setPdfPath(`http://localhost:4200/uploads/${pdf}`)
+        console.log(pdfPath)
     }
 
 
@@ -72,7 +73,7 @@ const Cards = () => {
                             </a>
                             <div className="p-5 flex flex-col items-center justify-center">
 
-                                <h5 className="mb-2 text-xl font-300 tracking-tight text-gray-800 dark:text-white">{item.title}</h5>
+                                <h5 className="mb-2 text-xl font-300 tracking-tight text-gray-800 dark:text-white overflow-ellipsis overflow-hidden break-all">{item.title}</h5>
 
 
                                 <button className="inline-flex items-center px-3 py-2 text-sm font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"

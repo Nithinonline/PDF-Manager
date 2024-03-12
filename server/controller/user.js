@@ -138,7 +138,6 @@ router.post('/extract/:id/:pdfId', catchAsyncErrors(async (req, res, next) => {
       return next(new ErrorHandler("PDF not found", 400));
     }
 
-
     const pages = pagesToExtract;
     const originalPdfBytes = await fs.readFile(pdfPath);
     const pdfDoc = await PDFDocument.load(originalPdfBytes)
@@ -151,10 +150,11 @@ router.post('/extract/:id/:pdfId', catchAsyncErrors(async (req, res, next) => {
     const json = { data: base64Data }
     const jsonString = JSON.stringify(json)
     const outputPath = `uploads/extracted_${Date.now()}.pdf`;
+    const filePath=outputPath.split("/")[1]
     await fs.writeFile(outputPath, newPdfBytes);
     user.pdf.push({
       title: `${pdf.title}_extracted_${Date.now()}`,
-      PDFdata: outputPath
+      PDFdata: filePath
     })
     await user.save()
     console.log(`PDF saved to: ${outputPath}`);
