@@ -44,7 +44,7 @@ const Form = () => {
     console.log(title, file)
 
     return (
-        <div className="bg-slate-300 dark:bg-gray-800 p-6 rounded-md shadow-md w-full md:w-2/3 lg:w-1/2 mx-auto mt-10">
+        <div className="bg-slate-300 dark:bg-gray-800 p-6 rounded-md shadow-md w-full md:w-2/3 lg:w-1/2 mx-auto mt-10 ">
         <label htmlFor="helper-text" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">PDF Title</label>
         <input
           type="text"

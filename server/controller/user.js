@@ -1,12 +1,14 @@
 const express = require("express");
 const path = require("path");
 const { upload } = require("../multer");
-const fs = require('fs');
+// const fs = require('fs');
+const fs = require('fs').promises;
 const User = require("../Model/user");
 const ErrorHandler = require("../utils/ErrorHandler");
 const router = express.Router()
 const bcrypt = require("bcrypt")
 const catchAsyncErrors = require("../middlewares/catchAsyncErrors")
+const { PDFDocument } = require('pdf-lib')
 
 
 
@@ -71,18 +73,17 @@ router.post("/login-user", catchAsyncErrors(async (req, res, next) => {
 //get user
 
 router.get('/getUser/:id', catchAsyncErrors(async (req, res, next) => {
-try{
-const {id}=req.params;
-const user=await User.findById({_id:id})
-if(!user){
-  return next(new ErrorHandler("user not found",400))
-}
-res.status(200).json(user)
+  try {
+    const { id } = req.params;
+    const user = await User.findById({ _id: id })
+    if (!user) {
+      return next(new ErrorHandler("user not found", 400))
+    }
+    res.status(200).json(user)
 
-}catch(err)
-{
-  return next(new ErrorHandler(err.message,500))
-}
+  } catch (err) {
+    return next(new ErrorHandler(err.message, 500))
+  }
 }))
 
 
@@ -116,6 +117,53 @@ router.post('/add/:id', upload.single("file"), async (req, res, next) => {
     return next(new ErrorHandler(err.message, 500))
   }
 })
+
+
+//To extract new pdf
+
+router.post('/extract/:id/:pdfId', catchAsyncErrors(async (req, res, next) => {
+  try {
+    const { id, pdfId } = req.params;
+    const { pagesToExtract } = req.body;
+    const user = await User.findById({ _id: id });
+
+    if (!user) {
+      return next(new ErrorHandler("User not found", 400));
+    }
+
+    const pdf = user.pdf.find(pdf => pdf._id == pdfId);
+    const pdfPath = `uploads/${pdf.PDFdata}`
+
+    if (!pdf) {
+      return next(new ErrorHandler("PDF not found", 400));
+    }
+
+
+    const pages = pagesToExtract;
+    const originalPdfBytes = await fs.readFile(pdfPath);
+    const pdfDoc = await PDFDocument.load(originalPdfBytes)
+    const extractedPdf = await PDFDocument.create()
+    const copiedPage = await extractedPdf.copyPages(pdfDoc, pages)
+    copiedPage.forEach((page) => extractedPdf.addPage(page))
+    const newPdfBytes = await extractedPdf.save()
+    const buf = Buffer.from(newPdfBytes)
+    const base64Data = buf.toString('base64')
+    const json = { data: base64Data }
+    const jsonString = JSON.stringify(json)
+    const outputPath = `uploads/extracted_${Date.now()}.pdf`;
+    await fs.writeFile(outputPath, newPdfBytes);
+    user.pdf.push({
+      title: `${pdf.title}_extracted_${Date.now()}`,
+      PDFdata: outputPath
+    })
+    await user.save()
+    console.log(`PDF saved to: ${outputPath}`);
+    res.status(200).send({ success: true, filePath: outputPath });
+
+  } catch (err) {
+    return next(new ErrorHandler(err.message, 500))
+  }
+}));
 
 
 module.exports = router
