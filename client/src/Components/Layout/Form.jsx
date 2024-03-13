@@ -29,7 +29,6 @@ const Form = () => {
     const newForm = new FormData();
     newForm.append('file', file);
     newForm.append('title', title);
-    console.log("Clicked")
     if (!file || !title) {
       return toast.error("All Fields required")
     }
@@ -37,9 +36,12 @@ const Form = () => {
     axios
       .post(`${server}/add/${user._id}`, newForm, config)
       .then((res) => {
-        console.log(res.data)
+        window.location.reload()
+        setTitle('')
+        setFile(null)
         toast.success("PDF uploaded successfully")
-        window.location.reload();
+
+
       })
       .catch((err) => {
         toast.error(err.message)
@@ -54,7 +56,6 @@ const Form = () => {
     setFile(file)
   }
 
-  console.log(title, file)
 
   return (
     <>

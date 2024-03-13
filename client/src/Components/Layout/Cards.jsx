@@ -25,9 +25,10 @@ const Cards = () => {
     const [numPages, setNumPages] = useState();
     const [pdfOnView, setPdfOnView] = useState(null)
     const [pageNumbers, setPageNumbers] = useState([])
-    const [checkboxStatus, setCheckboxStatus] = useState(false)
+    const [isPdfUpdated, setIsPdfUpdated] = useState(false); //this state is created is to avoid inifinite rendering problem
 
-    console.log(pdfOnView)
+
+  
 
     function onDocumentLoadSuccess({ numPages }) {
         setNumPages(numPages);
@@ -47,8 +48,8 @@ const Cards = () => {
             try {
                 if (user) {
                     const response = await axios.get(`${server}/getUser/${user._id}`);
-                    console.log(response.data);
-                    setPdf(response.data.pdf)
+                        console.log(response.data);
+                        setPdf(response.data.pdf);
                 }
             } catch (error) {
                 console.log(error);
@@ -56,12 +57,13 @@ const Cards = () => {
         };
 
         sendReq();
-    }, [user]);
+    }, [user,isPdfUpdated]);
+
+
 
     //setting pdf url
     const showPdf = (pdf) => {
         setPdfPath(`http://localhost:4200/uploads/${pdf}`)
-        console.log(pdfPath)
     }
 
     //function for setting page numbers
@@ -72,10 +74,8 @@ const Cards = () => {
 
             if (check) {
                 const res = prevPages.filter((page) => page !== pageNo - 1);
-                console.log(res);
                 return res;
             } else {
-                console.log([...prevPages, pageNo - 1]);
                 return [...prevPages, pageNo - 1];
             }
         });
@@ -84,15 +84,18 @@ const Cards = () => {
 
 
     //sender function for extracting the pdf
-    const senderFunction = async (id, pdfId) => {
+    const senderFunction = async (user, pdf) => {
         if (pageNumbers.length !== 0) {
-            await axios.post(`http://localhost:4200/api/v1/extract/${id._id}/${pdfId._id}`, {
+            await axios.post(`http://localhost:4200/api/v1/extract/${user._id}/${pdf._id}`, {
                 pagesToExtract: pageNumbers
             })
                 .then((res) => {
                     console.log(res.data)
-                    window.location.reload();
                     toast.success("PDF Extracted successfully")
+                    setPageNumbers([])
+                    setPdfOnView(null)
+                    setIsPdfUpdated(!isPdfUpdated)
+
                 })
                 .catch((err) => {
                     console.log(err)
@@ -106,49 +109,67 @@ const Cards = () => {
     //handling download
     const handleDownload = async (pdf) => {
         try {
-          const response = await axios.get(`http://localhost:4200/uploads/${pdf.PDFdata}`, { responseType: 'blob' });
-      
-          const blob = new Blob([response.data], { type: 'application/pdf' });
-      
-          const url = window.URL.createObjectURL(blob);
-          const link = document.createElement('a');
-          link.href = url;
-          link.download = pdf.title;
-          link.click();
-          window.URL.revokeObjectURL(url);      
-          console.log('PDF Content:', response.data);
-        } catch (error) {
-          console.error('Error during download:', error);
-        }
-      };
+            const response = await axios.get(`http://localhost:4200/uploads/${pdf.PDFdata}`, { responseType: 'blob' });
 
+            const blob = new Blob([response.data], { type: 'application/pdf' });
+
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = pdf.title;
+            link.click();
+            window.URL.revokeObjectURL(url);
+            console.log('PDF Content:', response.data);
+        } catch (error) {
+            console.error('Error during download:', error);
+        }
+    };
+
+
+    //handling PDF delete
+
+    const handleDelete = async (user, pdf) => {
+
+        await axios.delete(`http://localhost:4200/api/v1/delete/${user._id}/${pdf._id}`)
+            .then((res) => {
+                console.log(res.data)
+                toast.success("PDF deleted successfully")
+                setIsPdfUpdated(!isPdfUpdated)
+            })
+            .catch((err) => {
+                console.log(err)
+            })
+
+    }
 
 
     return (
         <>
+        
             <h1 className='flex justify-center items-center text-center mt-[8vh] text-[30px]'>SELECT THE PDF YOU WANT TO EXTRACT</h1>
-            <div className='flex flex-wrap justify-center  mt-10 items-center'>
+            <div className='flex flex-wrap justify-center  mt-10 items-center mb-[10vh]'>
 
 
 
                 {
                     pdf.map((item, index) => (
-                        <div key={index} className="max-w-sm m-2 w-[200px] flex flex-col items-center bg-slate-100 border border-gray-200 rounded-lg shadow-lg dark:bg-gray-800 dark:border-gray-700">
 
-                          <div className='flex justify-between w-full mb-4 mt-2'>
-                            <IoMdDownload size={30} onClick={()=>handleDownload(item)}  className="cursor-pointer mx-2"/>
-                            <MdDelete size={30}  className="cursor-pointer mx-2" />
-                          </div>
+                        <div key={index} className="max-w-[200px] max-h-[300px] h-[300px] m-2 w-[200px] flex flex-col items-center bg-slate-100 border border-gray-200 rounded-lg shadow-lg dark:bg-gray-800 dark:border-gray-700">
+
+                            <div className='flex justify-between w-full mb-4 mt-2'>
+                                <IoMdDownload size={30} onClick={() => handleDownload(item)} className="cursor-pointer mx-2" />
+                                <MdDelete size={30} className="cursor-pointer mx-2" onClick={() => { handleDelete(user, item) }} />
+                            </div>
 
                             <a href="#">
                                 <img className="rounded-t-lg w-[100px] mt-3" src="./pdficon.png" alt="" />
                             </a>
                             <div className="p-5 flex flex-col items-center justify-center">
 
-                                <h5 className="mb-2 text-xl font-300 tracking-tight text-gray-800 dark:text-white overflow-ellipsis overflow-hidden break-all">{item.title}</h5>
+                                <h5 className="mb-2 text-xl font-300 tracking-tight text-gray-800 dark:text-white overflow-ellipsis overflow-hidden break-all">{(item.title.length < 15) ? (item.title) : (item.title.slice(0, 17) + '...')}</h5>
 
 
-                                <button className="inline-flex items-center px-3 py-2 text-sm font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                                <button className="inline items-center px-3 py-2 text-sm font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
                                     onClick={() => {
                                         showPdf(item.PDFdata)
                                         setPdfOnView(item)
@@ -164,21 +185,34 @@ const Cards = () => {
 
             </div>
 
-            <div className='flex justify-center mt-10'>
-                {pdfOnView &&
-                    <button type="button" className="text-white text-[2rem] bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg  px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800 w-100px h-[8vh]"
-                        onClick={() => senderFunction(user, pdfOnView)}
-                    >
-                        Extract PDF
-                    </button>
-                }
+            <div className='flex flex-col items-center justify-center mt-10'>
+                {pdfOnView && (
+                    <>
+                        <button
+                            type="button"
+                            className="text-white text-xl md:text-2xl lg:text-3xl bg-[#BF3131] hover:bg-[#A62727] focus:ring-4 focus:ring-[#8A2121] font-medium rounded-lg px-6 py-3 md:px-8 md:py-4 lg:px-10 lg:py-5 mb-2 transition-all duration-300 focus:outline-none"
+                            onClick={() => senderFunction(user, pdfOnView)}
+                        >
+                            Extract PDF
+                        </button>
+                        <p className="text-sm mt-2 md:text-base lg:text-lg ">
+                            *Select the page numbers in the order you want to extract the PDF</p>
+                        {pageNumbers.length > 0 &&
+                            <p>Order of pages you have selected: {pageNumbers.map((item) => {
+                                return `${item + 1} `
+                            })}</p>
+                        }
 
-
+                    </>
+                )}
             </div>
+
+
+            {pdfOnView&&
 
             <div className="mx-auto max-w-full sm:max-w-screen-sm md:max-w-screen-md lg:max-w-screen-lg xl:max-w-screen-xl flex justify-center mt-10">
 
-              
+
 
                 <Document file={pdfPath} onLoadSuccess={onDocumentLoadSuccess}
                     className={"mb-4 sm:mb-8 md:mb-12 lg:mb-16 xl:mb-20"}
@@ -217,6 +251,7 @@ const Cards = () => {
                 </Document>
 
             </div>
+}
 
 
         </>
