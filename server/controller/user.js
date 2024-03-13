@@ -118,6 +118,28 @@ router.post('/add/:id', upload.single("file"), async (req, res, next) => {
   }
 })
 
+//To delete PDF
+
+router.delete('/delete/:id/:pdfId', catchAsyncErrors(async (req, res, next) => {
+  try {
+    const { id, pdfId } = req.params;
+    const user = await User.findById({ _id: id });
+
+    if (!user) {
+      return next(new ErrorHandler("User not found", 400));
+    }
+    const pdfIndexToDelete = user.pdf.findIndex(pdf => pdf._id == pdfId);
+    if (pdfIndexToDelete === -1) {
+      return next(new ErrorHandler("PDF not found", 400));
+    }
+    user.pdf.splice(pdfIndexToDelete, 1);
+    await user.save();
+    res.status(200).json(user);
+  } catch (err) {
+    return next(new ErrorHandler(err.message, 500));
+  }
+}));
+
 
 //To extract new pdf
 
@@ -150,7 +172,7 @@ router.post('/extract/:id/:pdfId', catchAsyncErrors(async (req, res, next) => {
     const json = { data: base64Data }
     const jsonString = JSON.stringify(json)
     const outputPath = `uploads/extracted_${Date.now()}.pdf`;
-    const filePath=outputPath.split("/")[1]
+    const filePath = outputPath.split("/")[1]
     await fs.writeFile(outputPath, newPdfBytes);
     user.pdf.push({
       title: `${pdf.title}_extracted_${Date.now()}`,

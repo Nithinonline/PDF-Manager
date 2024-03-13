@@ -4,6 +4,8 @@ import axios from 'axios';
 import { server } from '../../server';
 import { Document, Page } from 'react-pdf';
 import { toast } from 'react-toastify';
+import { MdDelete } from "react-icons/md";
+import { IoMdDownload } from "react-icons/io";
 
 
 pdfjs.GlobalWorkerOptions.workerSrc = new URL(
@@ -83,24 +85,42 @@ const Cards = () => {
 
     //sender function for extracting the pdf
     const senderFunction = async (id, pdfId) => {
-        if(pageNumbers.length!==0){
-        await axios.post(`http://localhost:4200/api/v1/extract/${id._id}/${pdfId._id}`, {
-            pagesToExtract: pageNumbers
-        })
-            .then((res) => {
-                console.log(res.data)
-                window.location.reload();
-                toast.success("PDF Extracted successfully")
+        if (pageNumbers.length !== 0) {
+            await axios.post(`http://localhost:4200/api/v1/extract/${id._id}/${pdfId._id}`, {
+                pagesToExtract: pageNumbers
             })
-            .catch((err) => {
-                console.log(err)
-            })
-        }else{
+                .then((res) => {
+                    console.log(res.data)
+                    window.location.reload();
+                    toast.success("PDF Extracted successfully")
+                })
+                .catch((err) => {
+                    console.log(err)
+                })
+        } else {
             toast.error("Select Pages to extract")
         }
 
     }
 
+    //handling download
+    const handleDownload = async (pdf) => {
+        try {
+          const response = await axios.get(`http://localhost:4200/uploads/${pdf.PDFdata}`, { responseType: 'blob' });
+      
+          const blob = new Blob([response.data], { type: 'application/pdf' });
+      
+          const url = window.URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.href = url;
+          link.download = pdf.title;
+          link.click();
+          window.URL.revokeObjectURL(url);      
+          console.log('PDF Content:', response.data);
+        } catch (error) {
+          console.error('Error during download:', error);
+        }
+      };
 
 
 
@@ -114,6 +134,12 @@ const Cards = () => {
                 {
                     pdf.map((item, index) => (
                         <div key={index} className="max-w-sm m-2 w-[200px] flex flex-col items-center bg-slate-100 border border-gray-200 rounded-lg shadow-lg dark:bg-gray-800 dark:border-gray-700">
+
+                          <div className='flex justify-between w-full mb-4 mt-2'>
+                            <IoMdDownload size={30} onClick={()=>handleDownload(item)}  className="cursor-pointer mx-2"/>
+                            <MdDelete size={30}  className="cursor-pointer mx-2" />
+                          </div>
+
                             <a href="#">
                                 <img className="rounded-t-lg w-[100px] mt-3" src="./pdficon.png" alt="" />
                             </a>
@@ -130,6 +156,7 @@ const Cards = () => {
                                 >
                                     View PDF
                                 </button>
+
                             </div>
                         </div>
                     ))
@@ -139,7 +166,7 @@ const Cards = () => {
 
             <div className='flex justify-center mt-10'>
                 {pdfOnView &&
-                    <button type="button" className="text-white text-[2rem] bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg  px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800 w-[30vw] h-[8vh]"
+                    <button type="button" className="text-white text-[2rem] bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg  px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800 w-100px h-[8vh]"
                         onClick={() => senderFunction(user, pdfOnView)}
                     >
                         Extract PDF
@@ -150,6 +177,8 @@ const Cards = () => {
             </div>
 
             <div className="mx-auto max-w-full sm:max-w-screen-sm md:max-w-screen-md lg:max-w-screen-lg xl:max-w-screen-xl flex justify-center mt-10">
+
+              
 
                 <Document file={pdfPath} onLoadSuccess={onDocumentLoadSuccess}
                     className={"mb-4 sm:mb-8 md:mb-12 lg:mb-16 xl:mb-20"}
