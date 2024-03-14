@@ -17,7 +17,7 @@ const Form = () => {
   }, []);
 
 
-  // For handling submit, In this function we are request for pdf upload
+  //Function which sends a request for pdf upload
   const handleSubmit = (e) => {
     e.preventDefault()
 

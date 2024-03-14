@@ -83,7 +83,7 @@ const Cards = () => {
 
 
 
-    //sender function for extracting the pdf
+    //sender function which sends a request for extracting the pdf
     const senderFunction = async (user, pdf) => {
         if (pageNumbers.length !== 0) {
             await axios.post(`http://localhost:4200/api/v1/extract/${user._id}/${pdf._id}`, {
@@ -126,7 +126,7 @@ const Cards = () => {
     };
 
 
-    //handling PDF delete
+    //Function which sends a request for deleting the pdf
 
     const handleDelete = async (user, pdf) => {
 
@@ -145,12 +145,10 @@ const Cards = () => {
 
     return (
         <>
-            {pdf.length>0 &&
+            {pdf.length > 0 &&
                 <h1 className='flex justify-center items-center text-center mt-[8vh] text-[30px]'>SELECT THE PDF YOU WANT TO EXTRACT</h1>
             }
             <div className='flex flex-wrap justify-center  mt-10 items-center mb-[10vh]'>
-
-
 
                 {
                     pdf.map((item, index) => (
@@ -168,7 +166,6 @@ const Cards = () => {
                             <div className="p-5 flex flex-col items-center justify-center">
 
                                 <h5 className="mb-2 text-xl font-300 tracking-tight text-gray-800 dark:text-white overflow-ellipsis overflow-hidden break-all">{(item.title.length < 15) ? (item.title) : (item.title.slice(0, 17) + '...')}</h5>
-
 
                                 <button className="inline items-center px-3 py-2 text-sm font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
                                     onClick={() => {

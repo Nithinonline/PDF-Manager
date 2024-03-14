@@ -6,7 +6,7 @@ import { toast } from 'react-toastify';
 const Navbar = () => {
 const navigate=useNavigate()
 
-
+//For handling logout by clearing local storage
 const handleLogout=()=>{
 localStorage.clear();
 navigate("/login")
