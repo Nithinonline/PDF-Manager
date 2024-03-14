@@ -1,7 +1,6 @@
 const express = require("express");
 const path = require("path");
 const { upload } = require("../multer");
-// const fs = require('fs');
 const fs = require('fs').promises;
 const User = require("../Model/user");
 const ErrorHandler = require("../utils/ErrorHandler");
@@ -13,7 +12,7 @@ const { PDFDocument } = require('pdf-lib')
 
 
 //SignUp
-router.post("/create-user", async (req, res, next) => {
+router.post("/create-user",catchAsyncErrors( async (req, res, next) => {
   try {
     const { name, email, password } = req.body;
 
@@ -39,7 +38,7 @@ router.post("/create-user", async (req, res, next) => {
   } catch (err) {
     return next(new ErrorHandler(err.message, 500))
   }
-});
+}));
 
 
 
@@ -70,7 +69,7 @@ router.post("/login-user", catchAsyncErrors(async (req, res, next) => {
 
 }))
 
-//get user
+//get user (PDFs are stored in the User model,so we can get the PDFs by this get request )
 
 router.get('/getUser/:id', catchAsyncErrors(async (req, res, next) => {
   try {
@@ -90,7 +89,7 @@ router.get('/getUser/:id', catchAsyncErrors(async (req, res, next) => {
 
 
 
-//To Add PDF
+//To upload PDF
 router.post('/add/:id', upload.single("file"), async (req, res, next) => {
   try {
     const { title } = req.body
@@ -118,27 +117,6 @@ router.post('/add/:id', upload.single("file"), async (req, res, next) => {
   }
 })
 
-//To delete PDF
-
-router.delete('/delete/:id/:pdfId', catchAsyncErrors(async (req, res, next) => {
-  try {
-    const { id, pdfId } = req.params;
-    const user = await User.findById({ _id: id });
-
-    if (!user) {
-      return next(new ErrorHandler("User not found", 400));
-    }
-    const pdfIndexToDelete = user.pdf.findIndex(pdf => pdf._id == pdfId);
-    if (pdfIndexToDelete === -1) {
-      return next(new ErrorHandler("PDF not found", 400));
-    }
-    user.pdf.splice(pdfIndexToDelete, 1);
-    await user.save();
-    res.status(200).json(user);
-  } catch (err) {
-    return next(new ErrorHandler(err.message, 500));
-  }
-}));
 
 
 //To extract new pdf
@@ -184,6 +162,29 @@ router.post('/extract/:id/:pdfId', catchAsyncErrors(async (req, res, next) => {
 
   } catch (err) {
     return next(new ErrorHandler(err.message, 500))
+  }
+}));
+
+
+//To delete PDF
+
+router.delete('/delete/:id/:pdfId', catchAsyncErrors(async (req, res, next) => {
+  try {
+    const { id, pdfId } = req.params;
+    const user = await User.findById({ _id: id });
+
+    if (!user) {
+      return next(new ErrorHandler("User not found", 400));
+    }
+    const pdfIndexToDelete = user.pdf.findIndex(pdf => pdf._id == pdfId);
+    if (pdfIndexToDelete === -1) {
+      return next(new ErrorHandler("PDF not found", 400));
+    }
+    user.pdf.splice(pdfIndexToDelete, 1);
+    await user.save();
+    res.status(200).json(user);
+  } catch (err) {
+    return next(new ErrorHandler(err.message, 500));
   }
 }));
 

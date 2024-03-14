@@ -25,7 +25,7 @@ const senderFunction=async()=>{
     const modifiedData={...res.data}
     delete modifiedData.password
     localStorage.setItem('user', JSON.stringify(modifiedData));
-    navigate("/")
+    navigate("/home")
   })
   .catch((error)=>{
     console.log(error);

@@ -17,6 +17,7 @@ const Form = () => {
   }, []);
 
 
+  // For handling submit, In this function we are request for pdf upload
   const handleSubmit = (e) => {
     e.preventDefault()
 
@@ -32,7 +33,6 @@ const Form = () => {
     if (!file || !title) {
       return toast.error("All Fields required")
     }
-
     axios
       .post(`${server}/add/${user._id}`, newForm, config)
       .then((res) => {
@@ -40,21 +40,19 @@ const Form = () => {
         setTitle('')
         setFile(null)
         toast.success("PDF uploaded successfully")
-
-
       })
       .catch((err) => {
         toast.error(err.message)
         console.log(err)
-
       });
   };
 
-
+//for handling file input change
   const handleFileInputChange = (e) => {
     const file = e.target.files[0]
     setFile(file)
   }
+
 
 
   return (
@@ -78,7 +76,7 @@ const Form = () => {
         <label htmlFor="file-input" className="block mt-4 mb-2 text-sm font-medium text-gray-900 dark:text-white">Upload file</label>
         <label htmlFor="file-input" className={`flex items-center justify-center px-4 py-2 border border-gray-300 rounded-md shadow-md text-sm font-medium text-gray-750 bg-white hover:bg-gray-50 cursor-pointer`}>
           <span>
-            {file ? "PDF Selected" : "Select a PDF"}
+            {file ? file.name : "Select a PDF"}
           </span>
           <input type="file" name='file' id='file-input' accept='.pdf' onChange={handleFileInputChange} className='sr-only' />
         </label>

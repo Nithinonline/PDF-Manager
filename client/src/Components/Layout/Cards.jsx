@@ -28,7 +28,7 @@ const Cards = () => {
     const [isPdfUpdated, setIsPdfUpdated] = useState(false); //this state is created is to avoid inifinite rendering problem
 
 
-  
+
 
     function onDocumentLoadSuccess({ numPages }) {
         setNumPages(numPages);
@@ -48,8 +48,8 @@ const Cards = () => {
             try {
                 if (user) {
                     const response = await axios.get(`${server}/getUser/${user._id}`);
-                        console.log(response.data);
-                        setPdf(response.data.pdf);
+                    console.log(response.data);
+                    setPdf(response.data.pdf);
                 }
             } catch (error) {
                 console.log(error);
@@ -57,7 +57,7 @@ const Cards = () => {
         };
 
         sendReq();
-    }, [user,isPdfUpdated]);
+    }, [user, isPdfUpdated]);
 
 
 
@@ -145,8 +145,9 @@ const Cards = () => {
 
     return (
         <>
-        
-            <h1 className='flex justify-center items-center text-center mt-[8vh] text-[30px]'>SELECT THE PDF YOU WANT TO EXTRACT</h1>
+            {pdf.length>0 &&
+                <h1 className='flex justify-center items-center text-center mt-[8vh] text-[30px]'>SELECT THE PDF YOU WANT TO EXTRACT</h1>
+            }
             <div className='flex flex-wrap justify-center  mt-10 items-center mb-[10vh]'>
 
 
@@ -208,50 +209,50 @@ const Cards = () => {
             </div>
 
 
-            {pdfOnView&&
+            {pdfOnView &&
 
-            <div className="mx-auto max-w-full sm:max-w-screen-sm md:max-w-screen-md lg:max-w-screen-lg xl:max-w-screen-xl flex justify-center mt-10">
-
-
-
-                <Document file={pdfPath} onLoadSuccess={onDocumentLoadSuccess}
-                    className={"mb-4 sm:mb-8 md:mb-12 lg:mb-16 xl:mb-20"}
-                >
-                    {Array.apply(null, Array(numPages))
-                        .map((item, i) => i + 1)
-                        .map((page) => {
-                            return (
-                                <>
-                                    <div className='mb-4 sm:mb-8 md:mb-12 lg:mb-16 xl:mb-20 '>
-                                        <div className='flex items-center'>
-
-                                            <input id="checkbox" type="checkbox" value={page} className="w-4 h-4 mr-3 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500"
-                                                onClick={() => setPages(page)}
-                                            />
+                <div className="mx-auto max-w-full sm:max-w-screen-sm md:max-w-screen-md lg:max-w-screen-lg xl:max-w-screen-xl flex justify-center mt-10">
 
 
 
+                    <Document file={pdfPath} onLoadSuccess={onDocumentLoadSuccess}
+                        className={"mb-4 sm:mb-8 md:mb-12 lg:mb-16 xl:mb-20"}
+                    >
+                        {Array.apply(null, Array(numPages))
+                            .map((item, i) => i + 1)
+                            .map((page) => {
+                                return (
+                                    <>
+                                        <div className='mb-4 sm:mb-8 md:mb-12 lg:mb-16 xl:mb-20 '>
+                                            <div className='flex items-center'>
 
-                                            <p>  Page {page} of {numPages}  </p>
+                                                <input id="checkbox" type="checkbox" value={page} className="w-4 h-4 mr-3 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500"
+                                                    onClick={() => setPages(page)}
+                                                />
 
 
+
+
+                                                <p>  Page {page} of {numPages}  </p>
+
+
+                                            </div>
+                                            <div className='flex'>
+                                                <Page pageNumber={page} renderAnnotationLayer={false} renderTextLayer={false}
+                                                    width={350}
+
+                                                />
+                                            </div>
                                         </div>
-                                        <div className='flex'>
-                                            <Page pageNumber={page} renderAnnotationLayer={false} renderTextLayer={false}
-                                                width={350}
+                                    </>
+                                )
+                            })
+                        }
 
-                                            />
-                                        </div>
-                                    </div>
-                                </>
-                            )
-                        })
-                    }
+                    </Document>
 
-                </Document>
-
-            </div>
-}
+                </div>
+            }
 
 
         </>

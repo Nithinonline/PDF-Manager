@@ -1,5 +1,5 @@
 
-//To resolve promise pending error,this is a higher order function
+//To resolve promise pending error.
 
 module.exports = (theFunc) =>
     (req, res, next) => {
