@@ -17,7 +17,7 @@ PDF-Manager is a web application featuring an authentication system with passwor
 
 1. Clone the repository using the below command in terminal:
     ```
-    git clone (repo link)
+    git clone https://github.com/Nithinonline/PDF-Manager.git
     ```
 
 2. Navigate to the server directory:
