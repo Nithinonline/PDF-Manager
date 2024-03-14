@@ -15,40 +15,45 @@ PDF-Manager is a web application featuring an authentication system with passwor
 
 ## Steps to run the code 
 
-1. Clone the repository using the below command in terminal:
+1. Clone the repository using the following command in the terminal:
     ```
     git clone https://github.com/Nithinonline/PDF-Manager.git
     ```
 
-2. Navigate to the server directory:
+2. Navigate to the PDF-Manager directory:
+    ```
+    cd PDF-Manager
+    ```
+   
+3. Navigate to the server directory:
     ```
     cd server
     ```
 
-3. Install dependencies for the server:
+4. Install dependencies for the server:
     ```
     npm install
     ```
 
-4. Open another terminal window and navigate to the client directory:
+
+6. Open another terminal window and navigate to the client directory:
     ```
     cd client
     ```
 
-5. Install dependencies for the client side:
+7. Install dependencies for the client side:
     ```
     npm install
     ```
 
-6. Start the backend server:
+8. Start the backend server:
     ```
     npm start
     ```
 
-7. Launch the frontend development server:
+9. Run the frontend:
     ```
     npm run dev
     ```
 
-8. Once both servers are running, access the client side by clicking the provided link.
-
+10. Once both server and client are running, click the provided link.
