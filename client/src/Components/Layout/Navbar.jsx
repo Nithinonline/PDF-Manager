@@ -21,9 +21,11 @@ toast.success("Logged Out Successfully")
                     <img src="./logo.png" className="h-8" alt="Logo" />
                     <span className="self-center text-2xl font-semibold text-[#F3EDC8] whitespace-nowrap dark:text-white">PDF-Manager</span>
                 </a>
+               
                 <MdOutlineLogout size={40} title='Log Out' className="text-[#F3EDC8] cursor-pointer" 
                 onClick={()=>{handleLogout()}}
                 />
+               
             </div>
     
             <div className="flex justify-start items-center bg-white w-[100px]">
